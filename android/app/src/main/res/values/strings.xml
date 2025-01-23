@@ -1,0 +1,9 @@
+<resources>
+  <string name="app_name">UT Coip Mobile</string>
+  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+  <string name="expo_system_ui_user_interface_style" translatable="false">light</string>
+  <string name="expo_runtime_version">0.0.1</string>
+  <string name="hostname_ut_network_config">unitedtractors.com</string>
+  <string name="subtype_label">COIP Keyboard</string>
+</resources>

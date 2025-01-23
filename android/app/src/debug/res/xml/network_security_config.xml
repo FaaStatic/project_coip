@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base Config -->
+    <base-config cleartextTrafficPermitted="true">
+    </base-config>
+
+    <!-- Specific domain configurations for SSL Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">unitedtractors.com</domain>
+        <trust-anchors>
+            <certificates src="@raw/ut_ca"/>
+        </trust-anchors>
+        <pin-set>
+            <pin digest="SHA-256">ujh1PSXISz+Dgt0Qqo3OsgS66M0mizEeQpCFSKTsOUs=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

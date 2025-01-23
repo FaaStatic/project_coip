@@ -1,0 +1,46 @@
+{
+  "extends": "expo/tsconfig.base",
+  "ts-node": {
+    "files": true
+  },
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@untr/apps-coip/*": ["*"]
+    },
+    "types": ["nativewind/types", "node", "react"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "strict": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "jsx": "react-native",
+    "jsxImportSource": "@kubb/react",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Bundler",
+    "noErrorTruncation": false,
+    "pretty": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "incremental": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "include": [
+    "index.js",
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts",
+    "globals.d.tss"
+  ],
+  "exclude": ["node_modules", "build", "dist", ".expo"]
+}

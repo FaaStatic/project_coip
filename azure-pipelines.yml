@@ -1,0 +1,110 @@
+# MobileCoip Pipeline
+#
+# Variable Guide:
+#
+# AGENT-POOL               : Agent Pool used for this Job
+# API-URL                  : URL that used for Base API on Application.
+# JDK-VERSION              : Define JDK Version for build APK.
+# LOGGING                  : Set Logging value to Disable/Enable Logging Application.
+# MAJOR-MINOR              : Used for Versioning on Major & Minor section.
+# NVM-VERSION              : Define NodeJS version to be installed.
+# OCP-APIM-KEY             : Value for OCP Apim Subscription Key.
+# PATCH                    : Used for Versioning on Patch section.
+# SUFFIX                   : Used for Versioning on suffix section, based on environment.
+
+trigger:
+  branches:
+    include:
+      - refs/heads/develop
+
+name: $(major-minor).$(patch)$(suffix)
+
+resources:
+  - repo: self
+
+stages:
+  - stage: Build
+    displayName: Build Development Stage
+    variables:
+      - group: AKS
+    jobs:
+      - job: Build
+        displayName: Build job
+        pool:
+          name: '$(AGENT-POOL)'
+        steps:
+          - bash: |
+              echo NODE
+              export NODE_OPTIONS="--max-old-space-size=5120"
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm ls && nvm use $(NVM-VERSION) && npm i -g npm  && node -v && npm -v && npm i --legacy-peer-deps
+            displayName: 'Export NVM'
+
+          - bash: |
+              export JABBA_VERSION=0.11.2
+              export JABBA_HOME="$HOME/.jabba"
+              [ -s "$JABBA_HOME/jabba.sh" ] && source "$JABBA_HOME/jabba.sh" && jabba ls && jabba use $(JDK-VERSION)
+              export NODE_OPTIONS="--max-old-space-size=5120"
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm ls && nvm use $(NVM-VERSION)
+              echo checking version
+              java -version
+              node -v
+              npm -v
+              echo Step 1
+              cd android
+              echo Step 2
+              chmod +x ./gradlew
+              echo Step 3
+              ./gradlew clean
+            displayName: 'gradlew clean'
+
+          - bash: |
+              export JABBA_VERSION=0.11.2
+              export JABBA_HOME="$HOME/.jabba"
+              [ -s "$JABBA_HOME/jabba.sh" ] && source "$JABBA_HOME/jabba.sh" && jabba ls && jabba use $(JDK-VERSION)
+              export NODE_OPTIONS="--max-old-space-size=5120"
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm ls && nvm use $(NVM-VERSION)
+              echo Checking Version
+              java -version
+              node -v
+              npm -v
+              echo Step 1
+              cd android
+              echo Step 2
+              export  OCP_APIM_KEY=$(OCP-APIM-KEY) API_URL=$(API-URL) LOGGING=$(LOGGING) BUILD_ID=$(Build.BuildId)  VERSION_NAME=$(Build.BuildNumber) VERSION_CODE=$(versioncode)
+              echo Step 3
+              ./gradlew assembleRelease
+            displayName: 'gradlew assembleRelease'
+
+          - bash: '$ANDROID_HOME/build-tools/33.0.0/zipalign -v 4 $(system.defaultworkingdirectory)/android/app/build/outputs/apk/release/app-release-unsigned.apk MobileCoip-$(Build.BuildNumber).apk'
+            displayName: 'Zipalign to APK'
+
+          - bash: '$ANDROID_HOME/build-tools/33.0.0/apksigner sign --ks $HOME/keystore/unitedtractors.keystore --ks-pass pass:$(keystore.password) --verbose $(system.defaultworkingdirectory)/MobileCoip-$(Build.BuildNumber).apk'
+            displayName: Apksigner
+
+          - task: CopyFiles@2
+            displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+            inputs:
+              SourceFolder: '$(system.defaultworkingdirectory)'
+              Contents: '**/*.apk'
+              TargetFolder: '$(build.artifactstagingdirectory)'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Artifact: drop'
+
+          - task: DeleteFiles@1
+            displayName: 'Remove APK'
+            inputs:
+              Contents: 'MobileCoip-$(Build.BuildNumber).apk'
+
+          - task: FtpUpload@1
+            displayName: 'FTP Upload: $(System.DefaultWorkingDirectory)/_MobileCoip-DEV-CI-YML/drop'
+            inputs:
+              serverEndpoint: 'FTP-APK'
+              rootDirectory: '$(System.DefaultWorkingDirectory)/_MobileCoip-DEV-CI/drop'
+              filePatterns: 'MobileCoip-$(Build.BuildNumber).apk'
+              remoteDirectory: '/dca-aks/dev/$(build.buildNumber)/'
+            enabled: false
+

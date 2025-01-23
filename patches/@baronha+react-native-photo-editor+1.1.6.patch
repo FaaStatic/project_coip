@@ -1,0 +1,15 @@
+diff --git a/node_modules/@baronha/react-native-photo-editor/react-native-photo-editor.podspec b/node_modules/@baronha/react-native-photo-editor/react-native-photo-editor.podspec
+index 61bc5bc..478da74 100644
+--- a/node_modules/@baronha/react-native-photo-editor/react-native-photo-editor.podspec
++++ b/node_modules/@baronha/react-native-photo-editor/react-native-photo-editor.podspec
+@@ -17,8 +17,8 @@ Pod::Spec.new do |s|
+   s.source_files = "ios/**/*.{h,m,mm,swift}"
+   
+   s.dependency "React-Core"
+-  s.dependency "SDWebImage", "@untr/apps-coip> 5.11.1"
+-  s.dependency 'SDWebImageWebPCoder', '@untr/apps-coip> 0.8.4'
++  s.dependency "SDWebImage", "@untr/apps-coip> 5.19.1"
++  s.dependency 'SDWebImageWebPCoder', '@untr/apps-coip> 0.14.6'
+ 
+   s.subspec 'ZLImageEditor' do |zl|
+     zl.name             = "ZLImageEditor"
