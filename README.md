@@ -1,20 +1,40 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# COIP Mobile — Field Inspection Checksheet App
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+> ⚠️ **Internal project** — built for enterprise field operations. Source should remain private; this README documents the architecture for portfolio discussion purposes.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+An **offline-first React Native (Expo) application** for field technicians performing equipment inspections via digital checksheets — replacing paper-based workflows in environments with unreliable connectivity.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+## Highlights
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+- **Offline-first with Realm**: full inspection workflow (jobs, checksheets, equipment, customers) works without network; structured sync layer reconciles with the backend
+- **API client codegen with Kubb**: TypeScript types, Zod schemas, and TanStack Query hooks generated directly from the backend's OpenAPI/Swagger spec — no hand-written API types
+- **Mobile security hardening**: root/jailbreak detection (jail-monkey), screenshot prevention (react-native-screenguard), app security policies (@bam.tech/react-native-app-security)
+- **Complex form flows**: multi-tab checksheets with conditional validation using react-hook-form + Zod resolvers
+- Photo capture, annotation (photo editor), resize, and base64 handling for inspection evidence
+
+## Tech Stack
+
+| Concern | Choice |
+|---|---|
+| Framework | React Native 0.74 + Expo SDK 51 (dev client) |
+| Local DB | Realm (+ @realm/react) |
+| Server state | TanStack Query 5 |
+| Client state | Zustand 5 + Immer |
+| API codegen | Kubb (OpenAPI → types/Zod/Query hooks) |
+| Forms | react-hook-form + Zod |
+| Styling | NativeWind 4 (Tailwind) + CVA |
+| Navigation | Expo Router + React Navigation |
+| Lists | FlashList |
+| Testing | Jest + React Native Testing Library |
+
+## Architecture Notes
+
+```
+├── schemas/       # Realm object schemas per domain (Jobs, CheckSheets, Equipment, Sync, ...)
+├── components/    # Reusable UI (dialogs, pickers, sheets)
+├── hooks/         # Data & device hooks
+├── types/         # Shared TS types
+└── __test__/      # Jest test suites with wrappers/mocks
+```
+
+The sync design treats Realm as the source of truth on-device; remote mutations are queued and replayed, with a dedicated `Syncs` schema tracking state per record.
